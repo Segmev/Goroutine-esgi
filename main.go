@@ -5,22 +5,37 @@ import (
 	"time"
 )
 
-func waitingRoutine(channelIn chan string, channelOut chan string) {
-	fmt.Println("I'm the routine, I'll wait for a message")
-	msg := <-channelIn
-	fmt.Printf("Received this message:\n%s\n", msg)
-	fmt.Printf(".\n.\n.\n")
-	channelOut <- "Always been"
+type myChannels struct {
+	stringChannel chan string
+	intChannel    chan int
+	exitChannel   chan bool
+}
+
+func waitingRoutine(channels myChannels) {
+	for {
+		fmt.Println("Waiting for a message")
+		time.Sleep(2 * time.Second)
+		fmt.Println("Reading a message")
+		select {
+		case number := <-channels.intChannel:
+			println("Received this number:", number)
+		case str := <-channels.stringChannel:
+			println("Received this string:", str)
+		case <-channels.exitChannel:
+			fmt.Println("Closing the routine")
+			return
+		}
+	}
 }
 
 func main() {
-	channelIn, channelOut := make(chan string), make(chan string)
-
-	go waitingRoutine(channelIn, channelOut)
-
-	fmt.Println("I'm the main process, I launched the routine and I'll wait some time")
-	time.Sleep(3 * time.Second)
-	fmt.Printf("I stopped waiting, sending a message...")
-	channelIn <- "Wait, it's that simple ?"
-	fmt.Println(<-channelOut)
+	myChannels := myChannels{make(chan string), make(chan int), make(chan bool)}
+	go waitingRoutine(myChannels)
+	fmt.Println("Sending a number message")
+	myChannels.intChannel <- 20
+	fmt.Println("Sending a string message")
+	myChannels.stringChannel <- "Hello world"
+	fmt.Println("Sending the quit bool")
+	myChannels.exitChannel <- true
+	fmt.Println("Exiting the program")
 }
