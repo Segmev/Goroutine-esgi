@@ -11,6 +11,8 @@ func inRoutine() {
 
 func main() {
 	go inRoutine()
+	go inRoutine()
+	go inRoutine()
 	fmt.Println("I'm printing from the main process")
 	time.Sleep(1 * time.Second)
 	fmt.Println("I'm printing from the main process again after 1 second")
