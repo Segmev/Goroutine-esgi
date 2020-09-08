@@ -2,18 +2,15 @@ package main
 
 import (
 	"fmt"
-	"time"
 )
 
-func inRoutine() {
+func inRoutine(channel chan int) {
 	fmt.Println("I'm printing from a routine")
 }
 
 func main() {
-	go inRoutine()
-	go inRoutine()
-	go inRoutine()
-	fmt.Println("I'm printing from the main process")
-	time.Sleep(1 * time.Second)
-	fmt.Println("I'm printing from the main process again after 1 second")
+	channel := make(chan int)
+
+	go inRoutine(channel)
+	fmt.Println("I'm printing from the main process with", sent)
 }
